@@ -1,0 +1,564 @@
+MIB_TRACE_V1
+seed	1701033
+class	a
+turn_cap	3600
+line_hash	0dac40f68d59153bc36c027d5fbd506e049319c2fd4376f96319c22945007761
+outcome_hash	de16b698d4940d80ff044e2c16da24318d94727c9a52662e2bf876a4bfd8306e
+outcome	1	1	15	15	554	7985	40/40	13
+actions	556
+0	command:y:collect nearby useful item
+1	command:h:collect nearby useful item
+2	command:h:collect nearby useful item
+3	wear:arquillian battle plate:equip armor
+4	command:h:seek stairs
+5	command:b:seek stairs
+6	command:h:seek stairs
+7	command:h:seek stairs
+8	command:h:seek stairs
+9	command:h:seek stairs
+10	command:h:seek stairs
+11	command:h:seek stairs
+12	command:h:seek stairs
+13	command:h:seek stairs
+14	command:h:seek stairs
+15	command:h:seek stairs
+16	command:h:seek stairs
+17	command:h:seek stairs
+18	command:h:seek stairs
+19	command:h:seek stairs
+20	command:h:seek stairs
+21	command:h:seek stairs
+22	command:h:seek stairs
+23	command:h:seek stairs
+24	command:h:seek stairs
+25	command:h:seek stairs
+26	command:h:seek stairs
+27	command:h:seek stairs
+28	command:h:seek stairs
+29	command:h:seek stairs
+30	command:h:seek stairs
+31	command:h:seek stairs
+32	command:h:seek stairs
+33	command:h:seek stairs
+34	command:h:seek stairs
+35	command:h:seek shop
+36	command:h:seek shop
+37	command:h:seek shop
+38	command:h:seek shop
+39	command:h:seek shop
+40	command:h:seek shop
+41	command:h:seek shop
+42	command:h:seek shop
+43	command:h:seek shop
+44	buy:containment foam grenade:buy containment foam grenade
+45	command:n:seek stairs
+46	command:b:collect ammo
+47	command:b:collect ammo
+48	command:j:collect ammo
+49	command:j:collect ammo
+50	command:j:collect ammo
+51	command:j:collect ammo
+52	command:j:collect ammo
+53	command:n:collect ammo
+54	command:l:collect ammo
+55	command:l:collect ammo
+56	command:l:collect ammo
+57	command:l:collect ammo
+58	command:l:collect ammo
+59	command:l:collect ammo
+60	command:l:collect ammo
+61	command:l:collect ammo
+62	command:l:collect ammo
+63	command:l:seek stairs
+64	command:l:seek stairs
+65	command:l:seek stairs
+66	command:l:seek stairs
+67	command:l:seek stairs
+68	command:l:seek stairs
+69	command:l:seek stairs
+70	command:l:seek stairs
+71	command:l:seek stairs
+72	command:l:seek stairs
+73	command:l:seek stairs
+74	command:l:seek stairs
+75	command:l:seek stairs
+76	command:l:seek stairs
+77	command:l:seek stairs
+78	command:l:seek stairs
+79	command:l:seek stairs
+80	command:l:seek stairs
+81	command:l:seek stairs
+82	command:l:seek stairs
+83	command:l:seek stairs
+84	command:l:seek stairs
+85	command:l:seek stairs
+86	command:l:seek stairs
+87	command:l:seek stairs
+88	command:l:seek stairs
+89	command:l:seek stairs
+90	command:l:seek stairs
+91	command:l:seek stairs
+92	command:l:seek stairs
+93	command:l:seek stairs
+94	command:l:seek stairs
+95	command:l:seek stairs
+96	command:l:seek stairs
+97	command:l:seek stairs
+98	command:l:seek stairs
+99	command:l:seek stairs
+100	command:l:seek stairs
+101	command:l:seek stairs
+102	command:l:seek stairs
+103	command:l:seek stairs
+104	command:>:descend
+105	command:n:seek stairs
+106	command:n:seek stairs
+107	command:j:seek stairs
+108	command:n:seek stairs
+109	command:n:seek stairs
+110	command:l:seek stairs
+111	command:l:seek stairs
+112	command:l:seek stairs
+113	command:l:seek stairs
+114	command:l:collect ammo
+115	command:l:collect ammo
+116	command:l:collect ammo
+117	command:l:collect ammo
+118	command:l:collect ammo
+119	command:l:collect ammo
+120	command:l:collect ammo
+121	command:u:collect ammo
+122	command:k:collect ammo
+123	command:k:collect ammo
+124	command:k:collect ammo
+125	command:u:collect ammo
+126	fire:28,25:finish threat
+127	command:u:collect ammo
+128	command:u:collect ammo
+129	command:u:collect ammo
+130	command:u:collect ammo
+131	command:u:collect ammo
+132	command:h:collect ammo
+133	command:h:collect ammo
+134	command:h:collect ammo
+135	command:h:collect ammo
+136	command:y:collect ammo
+137	command:k:collect ammo
+138	command:y:collect ammo
+139	command:u:seek stairs
+140	command:u:seek stairs
+141	command:k:seek stairs
+142	command:k:seek stairs
+143	command:y:seek stairs
+144	command:u:seek stairs
+145	command:l:seek stairs
+146	command:l:seek stairs
+147	command:l:seek stairs
+148	command:l:seek stairs
+149	command:l:seek stairs
+150	command:l:seek stairs
+151	command:l:seek stairs
+152	command:l:seek stairs
+153	command:l:seek stairs
+154	command:l:seek stairs
+155	command:l:seek stairs
+156	command:l:seek stairs
+157	command:l:seek stairs
+158	command:l:seek stairs
+159	command:l:seek stairs
+160	command:l:seek stairs
+161	command:l:seek stairs
+162	command:l:seek stairs
+163	command:l:seek stairs
+164	command:l:seek stairs
+165	command:l:seek stairs
+166	command:>:descend
+167	command:l:collect ammo
+168	command:l:collect ammo
+169	command:l:collect ammo
+170	command:u:collect ammo
+171	command:l:collect ammo
+172	command:h:seek stairs
+173	command:h:seek stairs
+174	command:h:seek stairs
+175	command:b:seek stairs
+176	command:h:seek stairs
+177	command:b:seek stairs
+178	command:h:seek stairs
+179	command:b:seek stairs
+180	command:h:seek stairs
+181	command:h:seek stairs
+182	command:y:seek stairs
+183	command:b:seek stairs
+184	command:h:seek stairs
+185	command:h:seek stairs
+186	command:b:seek stairs
+187	command:j:seek stairs
+188	command:j:seek stairs
+189	command:>:descend
+190	command:l:collect ammo
+191	command:l:collect ammo
+192	command:l:collect ammo
+193	command:l:collect ammo
+194	command:n:collect ammo
+195	command:l:collect ammo
+196	command:n:seek stairs
+197	command:j:seek stairs
+198	command:j:seek stairs
+199	command:j:seek stairs
+200	command:j:seek stairs
+201	command:j:seek stairs
+202	command:j:seek stairs
+203	command:j:seek stairs
+204	command:j:seek stairs
+205	command:j:seek stairs
+206	command:j:seek stairs
+207	command:j:seek stairs
+208	command:j:enter weapon range
+209	fire:42,20:finish threat
+210	fire:38,26:finish threat
+211	command:j:seek stairs
+212	command:j:seek stairs
+213	command:j:seek stairs
+214	command:j:seek stairs
+215	command:j:seek stairs
+216	command:j:seek stairs
+217	command:j:seek stairs
+218	command:j:seek stairs
+219	command:j:seek stairs
+220	command:>:descend
+221	command:l:approach boss by shortest arena route
+222	command:l:approach boss by shortest arena route
+223	command:l:approach boss by shortest arena route
+224	command:l:approach boss by shortest arena route
+225	command:l:approach boss by shortest arena route
+226	command:l:approach boss by shortest arena route
+227	command:l:approach boss by shortest arena route
+228	command:l:approach boss by shortest arena route
+229	command:l:approach boss by shortest arena route
+230	command:l:approach boss by shortest arena route
+231	command:l:approach boss by shortest arena route
+232	command:l:approach boss by shortest arena route
+233	command:l:approach boss by shortest arena route
+234	command:l:approach boss by shortest arena route
+235	command:l:approach boss by shortest arena route
+236	command:l:approach boss by shortest arena route
+237	command:l:approach boss by shortest arena route
+238	command:l:approach boss by shortest arena route
+239	command:l:approach boss by shortest arena route
+240	command:l:approach boss by shortest arena route
+241	command:l:approach boss by shortest arena route
+242	command:l:approach boss by shortest arena route
+243	command:l:approach boss by shortest arena route
+244	command:l:approach boss by shortest arena route
+245	command:l:enter weapon range
+246	fire:38,18:pressure boss at range
+247	fire:37,18:pressure boss at range
+248	fire:36,18:pressure boss at range
+249	command:l:collect ammo
+250	command:l:collect ammo
+251	command:l:collect ammo
+252	command:u:collect ammo
+253	command:l:collect ammo
+254	wield:reverberating carbonizer w/ mutate capacity:equip weapon
+255	command:y:collect ammo
+256	command:y:collect ammo
+257	command:y:collect ammo
+258	command:y:collect ammo
+259	command:y:collect ammo
+260	command:y:collect ammo
+261	command:h:collect ammo
+262	command:y:collect ammo
+263	command:h:collect ammo
+264	command:y:collect ammo
+265	command:h:collect ammo
+266	command:y:collect ammo
+267	command:h:collect ammo
+268	command:l:seek stairs
+269	command:l:seek stairs
+270	command:l:seek stairs
+271	command:l:seek stairs
+272	command:l:seek stairs
+273	command:l:seek stairs
+274	command:l:seek stairs
+275	command:l:seek stairs
+276	command:n:seek stairs
+277	command:l:seek stairs
+278	command:n:seek stairs
+279	command:l:seek stairs
+280	command:n:seek stairs
+281	command:l:seek stairs
+282	command:n:seek stairs
+283	command:l:seek stairs
+284	command:n:seek stairs
+285	command:l:seek stairs
+286	command:n:seek stairs
+287	command:l:seek stairs
+288	command:n:seek stairs
+289	command:l:seek stairs
+290	command:n:seek stairs
+291	command:l:seek stairs
+292	command:n:seek stairs
+293	command:l:seek stairs
+294	command:n:seek stairs
+295	command:l:seek stairs
+296	command:>:descend
+297	eat:coffee:combat haste
+298	use:neuralyzer charge:emergency neuralyzer
+299	command:b:push deeper
+300	command:b:push deeper
+301	command:n:push deeper
+302	command:n:push deeper
+303	command:j:push deeper
+304	fire:26,18:panic shot
+305	fire:26,19:finish threat
+306	fire:26,19:finish threat
+307	fire:26,18:finish threat
+308	command:j:push deeper
+309	command:j:push deeper
+310	command:j:push deeper
+311	command:j:push deeper
+312	command:j:push deeper
+313	command:b:push deeper
+314	command:h:push deeper
+315	command:h:push deeper
+316	command:h:push deeper
+317	command:h:push deeper
+318	command:h:push deeper
+319	command:h:push deeper
+320	command:h:push deeper
+321	command:h:push deeper
+322	command:>:descend
+323	use:neuralyzer charge:emergency neuralyzer
+324	command:b:push deeper
+325	command:h:push deeper
+326	command:b:push deeper
+327	command:j:push deeper
+328	command:j:push deeper
+329	fire:42,19:finish threat
+330	fire:43,18:finish threat
+331	fire:44,17:finish threat
+332	fire:45,16:finish threat
+333	fire:45,16:finish threat
+334	fire:45,16:finish threat
+335	fire:45,16:finish threat
+336	fire:45,16:finish threat
+337	fire:45,16:finish threat
+338	fire:45,16:finish threat
+339	use:pocket universe marble:break loop: teleport
+340	use:pocket universe marble:break loop: teleport
+341	command:n:break loop: force depth
+342	command:n:push deeper
+343	command:l:push deeper
+344	command:>:descend
+345	command:u:push deeper
+346	command:u:push deeper
+347	command:u:push deeper
+348	command:n:push deeper
+349	command:n:push deeper
+350	command:n:push deeper
+351	command:l:push deeper
+352	command:l:push deeper
+353	command:l:push deeper
+354	command:u:push deeper
+355	command:k:push deeper past distant threat
+356	command:k:seek useful item
+357	command:k:seek useful item
+358	command:u:seek useful item
+359	command:h:push deeper
+360	command:l:seek useful item
+361	command:h:push deeper
+362	command:l:seek useful item
+363	command:h:push deeper
+364	command:u:break loop: alternate frontier
+365	command:h:push deeper
+366	command:h:push deeper
+367	command:h:push deeper
+368	command:>:descend
+369	command:k:protect boss kit
+370	command:y:protect boss kit
+371	command:u:protect boss kit
+372	command:y:protect boss kit
+373	command:y:protect boss kit
+374	command:y:protect boss kit
+375	command:k:protect boss kit
+376	command:y:protect boss kit
+377	command:k:protect boss kit
+378	command:>:protect boss kit
+379	command:l:approach boss by shortest arena route
+380	command:l:approach boss by shortest arena route
+381	command:l:approach boss by shortest arena route
+382	command:l:approach boss by shortest arena route
+383	command:l:approach boss by shortest arena route
+384	command:l:approach boss by shortest arena route
+385	command:l:approach boss by shortest arena route
+386	command:l:approach boss by shortest arena route
+387	command:l:approach boss by shortest arena route
+388	command:l:approach boss by shortest arena route
+389	use:neuralyzer charge:emergency neuralyzer
+390	command:l:approach boss by shortest arena route
+391	command:l:approach boss by shortest arena route
+392	command:l:approach boss by shortest arena route
+393	command:l:approach boss by shortest arena route
+394	command:l:approach boss by shortest arena route
+395	command:l:approach boss by shortest arena route
+396	command:l:approach boss by shortest arena route
+397	command:l:approach boss by shortest arena route
+398	command:l:approach boss by shortest arena route
+399	command:l:approach boss by shortest arena route
+400	command:l:approach boss by shortest arena route
+401	command:l:approach boss by shortest arena route
+402	command:l:approach boss by shortest arena route
+403	command:l:approach boss by shortest arena route
+404	fire:39,17:finish threat
+405	fire:39,18:pressure boss at range
+406	fire:38,18:pressure boss at range
+407	fire:37,18:pressure boss at range
+408	fire:36,18:pressure boss at range
+409	fire:35,18:pressure boss at range
+410	fire:34,18:pressure boss at range
+411	fire:33,18:pressure boss at range
+412	fire:32,18:pressure boss at range
+413	fire:31,18:lookahead fire:31,18
+414	fire:31,18:press pinned boss
+415	fire:31,18:press pinned boss
+416	fire:31,18:finish boss
+417	fire:31,18:finish boss
+418	throw:containment foam grenade:31,18:emergency foam
+419	fire:31,18:panic finish
+420	fire:31,18:panic finish
+421	fire:31,18:panic finish
+422	command:l:protect depth kit
+423	command:l:protect depth kit
+424	command:l:protect depth kit
+425	command:l:protect depth kit
+426	command:l:protect depth kit
+427	command:l:protect depth kit
+428	command:l:protect depth kit
+429	command:l:protect depth kit
+430	command:l:protect depth kit
+431	command:l:protect depth kit
+432	command:l:protect depth kit
+433	command:l:protect depth kit
+434	command:l:protect depth kit
+435	command:l:protect depth kit
+436	command:l:protect depth kit
+437	command:l:protect depth kit
+438	command:l:protect depth kit
+439	command:l:protect depth kit
+440	command:l:protect depth kit
+441	command:l:protect depth kit
+442	command:l:protect depth kit
+443	command:l:protect depth kit
+444	command:>:protect depth kit
+445	command:n:protect depth kit
+446	command:l:protect depth kit
+447	command:u:protect depth kit
+448	command:l:protect depth kit
+449	command:l:protect depth kit
+450	command:l:protect depth kit
+451	command:l:protect depth kit
+452	command:l:protect depth kit
+453	command:n:protect depth kit
+454	command:j:protect depth kit
+455	throw:containment foam grenade:20,31:freeze threat
+456	throw:containment foam grenade:17,28:freeze threat
+457	fire:17,28:lookahead fire:17,28
+458	command:b:keep range
+459	command:j:protect depth kit
+460	command:n:protect depth kit
+461	command:j:protect depth kit
+462	command:>:protect depth kit
+463	command:u:protect depth kit
+464	command:u:protect depth kit
+465	command:u:protect depth kit
+466	command:n:protect depth kit
+467	command:n:protect depth kit
+468	command:n:protect depth kit
+469	command:l:protect depth kit
+470	command:l:protect depth kit
+471	command:l:protect depth kit
+472	command:l:protect depth kit
+473	command:l:protect depth kit
+474	command:l:protect depth kit
+475	command:u:protect depth kit
+476	command:k:protect depth kit
+477	command:k:protect depth kit
+478	command:k:protect depth kit
+479	command:k:protect depth kit
+480	command:k:protect depth kit
+481	command:k:protect depth kit
+482	command:k:protect depth kit
+483	fire:44,19:finish threat
+484	fire:43,19:finish threat
+485	fire:42,19:finish threat
+486	fire:41,19:finish threat
+487	fire:42,19:finish threat
+488	fire:41,19:finish threat
+489	fire:41,19:finish threat
+490	fire:41,19:finish threat
+491	fire:41,19:finish threat
+492	fire:41,19:finish threat
+493	fire:41,19:finish threat
+494	command:k:protect depth kit
+495	command:k:protect depth kit
+496	command:k:protect depth kit
+497	command:k:protect depth kit
+498	command:>:protect depth kit
+499	command:b:protect depth kit
+500	command:n:protect depth kit
+501	command:j:protect depth kit
+502	command:b:protect depth kit
+503	command:h:protect depth kit
+504	throw:containment foam grenade:7,13:freeze threat
+505	command:h:protect depth kit
+506	command:h:protect depth kit
+507	command:h:protect depth kit
+508	command:h:protect depth kit
+509	command:>:protect depth kit
+510	wield:tri-barrel plasma gun:equip weapon
+511	command:h:rush final floor
+512	throw:containment foam grenade:13,16:freeze threat
+513	fire:13,16:press close threat
+514	command:h:protect final kit
+515	command:y:protect final kit
+516	command:y:protect final kit
+517	command:y:protect final kit
+518	command:h:protect final kit
+519	command:h:protect final kit
+520	command:h:protect final kit
+521	command:>:protect final kit
+522	command:l:approach boss by shortest arena route
+523	command:l:approach boss by shortest arena route
+524	command:l:approach boss by shortest arena route
+525	command:l:approach boss by shortest arena route
+526	command:l:approach boss by shortest arena route
+527	command:l:approach boss by shortest arena route
+528	command:l:approach boss by shortest arena route
+529	command:l:approach boss by shortest arena route
+530	command:l:approach boss by shortest arena route
+531	command:l:approach boss by shortest arena route
+532	command:l:approach boss by shortest arena route
+533	command:l:approach boss by shortest arena route
+534	command:l:approach boss by shortest arena route
+535	command:l:approach boss by shortest arena route
+536	command:l:approach boss by shortest arena route
+537	command:l:approach boss by shortest arena route
+538	command:l:approach boss by shortest arena route
+539	command:l:approach boss by shortest arena route
+540	command:l:approach boss by shortest arena route
+541	command:l:approach boss by shortest arena route
+542	command:l:approach boss by shortest arena route
+543	command:l:approach boss by shortest arena route
+544	command:l:approach boss by shortest arena route
+545	command:l:approach boss by shortest arena route
+546	command:l:enter weapon range
+547	throw:containment foam grenade:38,18:freeze boss
+548	fire:38,18:pressure boss at range
+549	fire:38,18:pressure boss at range
+550	fire:38,18:pressure boss at range
+551	fire:38,18:pressure boss at range
+552	fire:38,18:pressure boss at range
+553	fire:38,18:pressure boss at range
+554	fire:38,18:pressure boss at range
+555	fire:38,18:pressure boss at range

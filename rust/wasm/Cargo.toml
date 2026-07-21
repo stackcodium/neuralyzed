@@ -1,0 +1,19 @@
+[package]
+name = "mib-rust-wasm"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mib-rust = { path = ".." }
+wasm-bindgen = "=0.2.126"
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = 3
+panic = "abort"
+strip = "symbols"

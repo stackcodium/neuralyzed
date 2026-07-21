@@ -1,0 +1,15 @@
+dist/*
+!dist/isometric-rust-wasm-browser.js
+!dist/isometric-rust-worker.js
+!dist/rust-wasm/
+dist/rust-wasm/*
+!dist/rust-wasm/iso-atlas-meta.json
+!dist/rust-wasm/iso-atlas.png
+!dist/rust-wasm/mib_rust_wasm.js
+!dist/rust-wasm/mib_rust_wasm_bg.wasm
+reports/
+target/
+rust/target/
+rust/wasm/target/
+.DS_Store
+*.log

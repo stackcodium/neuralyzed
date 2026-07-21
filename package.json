@@ -1,0 +1,19 @@
+{
+  "name": "neuralyzed",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun run build:rust-wasm",
+    "build:rust-wasm": "bun scripts/build-rust-wasm.ts && bun build src/runtime/rust-wasm-worker.ts --outfile dist/isometric-rust-worker.js --target browser --format esm && bun build src/isometric-rust-wasm-browser.ts --outfile dist/isometric-rust-wasm-browser.js --target browser --format esm",
+    "run": "bun run build && bun scripts/serve.mjs",
+    "start": "bun run run",
+    "dev": "bun run run",
+    "serve": "bun scripts/serve.mjs",
+    "run:node": "node scripts/serve.mjs",
+    "serve:node": "node scripts/serve.mjs",
+    "start:node": "node scripts/serve.mjs",
+    "test:browser": "node scripts/smoke-browser.mjs",
+    "test": "bun test src && cargo test --manifest-path rust/Cargo.toml --locked && cargo test --manifest-path rust/wasm/Cargo.toml --locked",
+    "export:single": "bun scripts/export-single-html.ts"
+  }
+}

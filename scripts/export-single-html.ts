@@ -40,7 +40,7 @@ function embedHtmlImages(html: string) {
 }
 
 function embedFavicon(html: string) {
-  return html.replace(/href="(\.\/assets\/branding\/[^\"]+\.png)"/g, (_match, relative: string) => {
+  return html.replace(/href="(\.\/assets\/branding\/[^"]+\.png)"/g, (_match, relative: string) => {
     const data = readFileSync(relative.slice(2)).toString("base64");
     return `href="data:image/png;base64,${data}"`;
   });
@@ -82,8 +82,8 @@ const atlasMeta = JSON.parse(readFileSync("dist/rust-wasm/iso-atlas-meta.json", 
 const workerSource = `self.__MIB_RUST_WASM_BASE64__=${JSON.stringify(wasmBase64)};\n${workerBundle}`;
 
 let html = embedFavicon(embedCssImages(embedHtmlImages(readFileSync("index.html", "utf8"))))
-  .replaceAll("url('./dist/rust-wasm/iso-atlas.png?v=20260721.1')", "var(--mib-embedded-atlas)")
-  .replace(/\s*<script type="module" src="\.\/dist\/isometric-rust-wasm-browser\.js(?:\?[^\"]*)?"><\/script>/, "");
+  .replace(/url\('\.\/dist\/rust-wasm\/iso-atlas\.png(?:\?[^']*)?'\)/g, "var(--mib-embedded-atlas)")
+  .replace(/\s*<script type="module" src="\.\/dist\/isometric-rust-wasm-browser\.js(?:\?[^"]*)?"><\/script>/, "");
 
 const bootstrap = [
   "<script>",
@@ -92,7 +92,9 @@ const bootstrap = [
   "</script>",
   `<script type="module">${scriptSafe(browserBundle)}</script>`,
 ].join("\n");
-html = html.replace("</body>", `${bootstrap}\n</body>`);
+const bodyCloseIndex = html.lastIndexOf("</body>");
+if (bodyCloseIndex < 0) throw new Error("Cannot export standalone HTML: rust-wasm.html has no closing </body> tag");
+html = `${html.slice(0, bodyCloseIndex)}${bootstrap}\n${html.slice(bodyCloseIndex)}`;
 
 mkdirSync(dirname(options.outFile), { recursive: true });
 writeFileSync(options.outFile, html);

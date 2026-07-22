@@ -4,7 +4,7 @@
 
 # NEURALYZED
 
-A deterministic isometric browser roguelike with a Rust/WebAssembly simulation, adaptive bot planning, and a handwritten atlas renderer. Play manually or let the autonomous agent plan a run.
+An isometric browser roguelike with a Rust/WebAssembly simulation, adaptive planning, and a handwritten atlas renderer. Play manually or let the autonomous agent plan a run.
 
 ## Play
 
@@ -50,7 +50,7 @@ The server prints the local address when it starts. Open that address in your br
 
 ## Why it works this way
 
-- The Rust core is authoritative for rules, simulation, combat, inventory, deterministic RNG, and planning.
+- The Rust core is authoritative for rules, simulation, combat, inventory, seeded RNG, and planning.
 - The Rust core is compiled to WebAssembly and runs behind a dedicated Web Worker, keeping expensive planning off the UI thread.
 - Adaptive lookahead calibrates itself to the device under a capped time budget.
 - A handwritten WebGL2/canvas renderer presents the isometric atlas, combat facing, movement, and effects without a game engine.
@@ -64,14 +64,14 @@ GPT-5.6 in Codex CLI was the primary engineering model used to build the complet
 
 | Area | What GPT-5.6 did through Codex CLI |
 | --- | --- |
-| Game and architecture | Implemented and connected the deterministic Rust simulation, WASM bridge, typed worker protocol, browser interface, and handwritten WebGL2 and Canvas renderer. |
+| Game and architecture | Implemented and connected the reproducible Rust simulation, WASM bridge, typed worker protocol, browser interface, and handwritten WebGL2 and Canvas renderer. |
 | Autoplay | Built the adaptive lookahead and ensemble workflow, including planning from the current live state, comparing candidate runs, selecting the strongest trajectory, and replanning after a human takes control. |
-| Optimization | Replayed difficult seeds, inspected individual decisions, found wasted movement and state errors, compared policies across seed batches, and protected improvements with stored outcomes and deterministic traces. |
+| Optimization | Replayed difficult seeds, inspected individual decisions, found wasted movement and state errors, compared policies across seed batches, and protected improvements with stored outcomes and reproducible traces. |
 | Asset pipeline | Built and ran the pipeline from the visual catalog through character analysis, orientation guides, state sheets, background removal, alpha trimming, normalization, validation, manifests, and atlas assembly. |
 | Presentation | Implemented movement interpolation, combat facing, projectiles, damage timing, teleport effects, responsive dialogs, HUD behavior, and the planning overlay. It also diagnosed visual bugs by running the real game and inspecting browser captures. |
 | Testing and release | Repeatedly built the Rust, WASM, TypeScript, and browser targets, added regression tests, ran complete autonomous missions, produced the self-contained HTML export, and verified the GitHub Pages deployment. |
 
-The asset pipeline used specialized tools for the image stages. GPT-5.6 designed, implemented, debugged, and orchestrated the workflow in Codex CLI. `gpt-image-2` produced raster candidates, and BiRefNet removed backgrounds before the deterministic cleanup and atlas stages.
+The asset pipeline used specialized tools for the image stages. GPT-5.6 designed, implemented, debugged, and orchestrated the workflow in Codex CLI. `gpt-image-2` produced raster candidates, and BiRefNet removed backgrounds before the scripted cleanup and atlas stages.
 
 Human review stayed part of every important decision. I chose the game design, architecture boundaries, visual direction, optimization goals, and final behavior. I also selected visual candidates and reviewed identity, facing direction, animation continuity, and bad frames before assets entered the runtime atlas. GPT-5.6 handled the engineering loop: inspect the current system, propose a focused change, implement it, run the real project, analyze failures, and continue until the result passed.
 
@@ -98,12 +98,12 @@ Useful commands:
 ## Architecture
 
 ```text
-Browser UI ──> Web Worker ──> WASM bridge ──> Rust game + bot
+Browser UI ──> Web Worker ──> WASM bridge ──> Rust game + planner
      │                                             │
      └──── isometric renderer <── render snapshot ─┘
 ```
 
-- `rust/src/`: game rules, simulation, deterministic RNG, and bot
+- `rust/src/`: game rules, simulation, seeded RNG, and planner
 - `rust/wasm/`: browser-facing WebAssembly bridge
 - `src/renderer/`: isometric atlas renderer and visual effects
 - `src/runtime/`: browser worker and typed message protocol

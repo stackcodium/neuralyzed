@@ -39,7 +39,7 @@ cargo fmt --manifest-path rust/Cargo.toml --all -- --check
 ## Architecture
 
 ```text
-Browser UI ──> Web Worker ──> WASM bridge ──> Rust game + bot
+Browser UI ──> Web Worker ──> WASM bridge ──> Rust game + planner
      │                                             │
      └──── isometric renderer <── render snapshot ─┘
 ```

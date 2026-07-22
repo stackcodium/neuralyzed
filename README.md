@@ -116,6 +116,6 @@ See [Development](docs/DEVELOPMENT.md) for setup details and [Contributing](CONT
 
 The release was validated locally with the complete test suite, a clean source build, both Node.js and Bun HTTP servers, a headless Brave mission-start smoke test, and a manually opened self-contained `neuralyzed.html` export.
 
-## License and asset rights
+## License
 
-No open-source license is granted by this repository. Code and assets remain all rights reserved unless a separate license or attribution file says otherwise. The repository is public so people can inspect and run the project, but redistribution or reuse is not granted.
+Code and documentation use the [MIT License](LICENSE). Original artwork and media use [CC0 1.0](ASSET-LICENSE.md). Third party components keep their own licenses; see [Third Party Notices](THIRD_PARTY_NOTICES.md).

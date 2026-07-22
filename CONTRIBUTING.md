@@ -24,4 +24,4 @@ Changes to game rules, RNG, or planning can affect deterministic runs. Call thos
 
 ## Assets and licensing
 
-Only contribute code and assets you have the right to share. Describe the source and license of new visual or audio assets in the pull request. The repository owner is responsible for choosing the project license and maintaining attribution files.
+Only contribute material you can license under the repository terms. Code and documentation use MIT. Original artwork and media use CC0 1.0. Identify third party material and its license in `THIRD_PARTY_NOTICES.md`.

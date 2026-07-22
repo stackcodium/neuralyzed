@@ -1,6 +1,7 @@
 import { createRustIsoRenderer, presentedPlayerPose, shouldRenderMob, type RustIsoRenderer, type RustIsoRendererKind } from "./renderer/rust-iso-atlas-renderer";
 import { deriveRustIsoEffects, RustIsoEffectLayer, splitRangedEffects, splitTeleportEffects, stageRangedImpactTransition, stageTeleportTransition, TELEPORT_IN_MS, TELEPORT_OUT_MS, THROW_EFFECT_MS, TRACER_EFFECT_MS, type RustIsoEffect } from "./renderer/rust-iso-effects";
 import type { RustPlanEvaluation, RustRenderSnapshot, RustWorkerRequest, RustWorkerResponse } from "./runtime/rust-wasm-protocol";
+import { logLayoutButtonState, nextLogLayout, storedLogLayout, type LogLayout } from "./runtime/log-layout";
 import { renderHudView, renderPregameHud } from "./shared/hud";
 import { inventoryPrimaryAction } from "./shared/inventory-primary-action";
 
@@ -34,7 +35,6 @@ const classPicker = document.querySelector<HTMLDivElement>("#classPicker")!;
 const settingsModal = document.querySelector<HTMLDivElement>("#settingsModal")!;
 const settingsButton = document.querySelector<HTMLButtonElement>("#settingsButton")!;
 const settingsClose = document.querySelector<HTMLButtonElement>("#settingsClose")!;
-
 function commandButton(icon: "auto" | "stop" | "new" | "below", label: string) {
   return `<span class="btn-icon icon-${icon}"></span><span>${label}</span>`;
 }
@@ -73,6 +73,12 @@ const MOB_DEATH_MS = 760;
 const ENDING_PRELUDE_MS = 1_250;
 let resumeAfterSettings = false;
 let actionLog: Array<{ text: string; cls?: "good" | "warn" | "flash"; repeat: number }> = [];
+function applyLogLayout(layout: LogLayout) {
+  const button = logLayoutButtonState(layout);
+  document.body.dataset.logLayout = layout;
+  layoutLogButton.setAttribute("aria-pressed", String(button.pressed));
+  layoutLogButton.innerHTML = commandButton("below", button.label);
+}
 
 if (new URLSearchParams(location.search).has("e2e")) {
   Object.defineProperty(window, "__MIB_RUST_E2E__", { value: {
@@ -172,7 +178,6 @@ function prepareEndingSequence(next: RustRenderSnapshot, now: number) {
 function playbackFps() {
   return Math.max(1, Math.min(60, Number(fpsInput.value) || DEFAULT_AUTOPLAY_FPS));
 }
-
 function syncFpsSetting(value: string | null = fpsInput.value) {
   const fps = Math.max(1, Math.min(60, Number(value) || DEFAULT_AUTOPLAY_FPS));
   fpsInput.value = String(fps);
@@ -880,11 +885,9 @@ plannerStrengthSelect.addEventListener("change", () => {
   syncPlannerStrengthSetting(plannerStrengthSelect.value);
 });
 layoutLogButton.addEventListener("click", () => {
-  const side = document.body.dataset.logLayout !== "side";
-  document.body.dataset.logLayout = side ? "side" : "below";
-  layoutLogButton.setAttribute("aria-pressed", String(side));
-  layoutLogButton.innerHTML = commandButton("below", side ? "Side" : "Below");
-  localStorage.setItem("mib_rust_log_layout", side ? "side" : "below");
+  const layout = nextLogLayout(document.body.dataset.logLayout);
+  applyLogLayout(layout);
+  localStorage.setItem("mib_rust_log_layout", layout);
   renderActionLog();
   if (snapshot) draw(snapshot, 1_000, performance.now());
 });
@@ -999,8 +1002,7 @@ requestAnimationFrame(animationLoop);
 syncFpsSetting(localStorage.getItem("mib_rust_steps_per_second"));
 syncPlannerCoreSetting(localStorage.getItem("mib_rust_planner_cores"));
 syncPlannerStrengthSetting(localStorage.getItem("mib_rust_planner_strength"));
-document.body.dataset.logLayout = localStorage.getItem("mib_rust_log_layout") === "below" ? "below" : "side";
-layoutLogButton.setAttribute("aria-pressed", String(document.body.dataset.logLayout === "side"));
+applyLogLayout(storedLogLayout(localStorage.getItem("mib_rust_log_layout")));
 status.textContent = "Select an agent profile to begin.";
 hud.innerHTML = renderPregameHud({ mode: "classpick" });
 document.body.dataset.rustReady = "true";

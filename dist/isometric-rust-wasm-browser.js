@@ -810,6 +810,17 @@ function drawVignette(ctx, t, width, height) {
   ctx.fillRect(0, 0, width, height);
 }
 
+// src/runtime/log-layout.ts
+function storedLogLayout(value) {
+  return value === "below" ? "below" : "side";
+}
+function nextLogLayout(value) {
+  return value === "side" ? "below" : "side";
+}
+function logLayoutButtonState(layout) {
+  return { label: layout === "side" ? "Side" : "Below", pressed: layout === "side" };
+}
+
 // src/shared/hud.ts
 function renderHudView(view) {
   const hpPct = percent(view.hp, view.maxHp);
@@ -939,6 +950,12 @@ var MOB_DEATH_MS = 760;
 var ENDING_PRELUDE_MS = 1250;
 var resumeAfterSettings = false;
 var actionLog = [];
+function applyLogLayout(layout) {
+  const button = logLayoutButtonState(layout);
+  document.body.dataset.logLayout = layout;
+  layoutLogButton.setAttribute("aria-pressed", String(button.pressed));
+  layoutLogButton.innerHTML = commandButton("below", button.label);
+}
 if (new URLSearchParams(location.search).has("e2e")) {
   Object.defineProperty(window, "__MIB_RUST_E2E__", { value: {
     snapshot: () => simulationSnapshot,
@@ -1737,11 +1754,9 @@ plannerStrengthSelect.addEventListener("change", () => {
   syncPlannerStrengthSetting(plannerStrengthSelect.value);
 });
 layoutLogButton.addEventListener("click", () => {
-  const side = document.body.dataset.logLayout !== "side";
-  document.body.dataset.logLayout = side ? "side" : "below";
-  layoutLogButton.setAttribute("aria-pressed", String(side));
-  layoutLogButton.innerHTML = commandButton("below", side ? "Side" : "Below");
-  localStorage.setItem("mib_rust_log_layout", side ? "side" : "below");
+  const layout = nextLogLayout(document.body.dataset.logLayout);
+  applyLogLayout(layout);
+  localStorage.setItem("mib_rust_log_layout", layout);
   renderActionLog();
   if (snapshot)
     draw(snapshot, 1000, performance.now());
@@ -1971,8 +1986,7 @@ requestAnimationFrame(animationLoop);
 syncFpsSetting(localStorage.getItem("mib_rust_steps_per_second"));
 syncPlannerCoreSetting(localStorage.getItem("mib_rust_planner_cores"));
 syncPlannerStrengthSetting(localStorage.getItem("mib_rust_planner_strength"));
-document.body.dataset.logLayout = localStorage.getItem("mib_rust_log_layout") === "below" ? "below" : "side";
-layoutLogButton.setAttribute("aria-pressed", String(document.body.dataset.logLayout === "side"));
+applyLogLayout(storedLogLayout(localStorage.getItem("mib_rust_log_layout")));
 status.textContent = "Select an agent profile to begin.";
 hud.innerHTML = renderPregameHud({ mode: "classpick" });
 document.body.dataset.rustReady = "true";

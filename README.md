@@ -10,7 +10,7 @@ An isometric browser roguelike with a Rust/WebAssembly simulation, Strategic ful
 
 **[Play NEURALYZED in your browser](https://stackcodium.github.io/neuralyzed/)**
 
-**[Watch the 93-second gameplay video](https://github.com/stackcodium/neuralyzed/releases/download/showcase/neuralyzed.mp4)**
+**[Watch the gameplay video](https://github.com/stackcodium/neuralyzed/releases/download/showcase/neuralyzed.mp4)**
 
 <p align="center">
   <a href="https://github.com/stackcodium/neuralyzed/releases/download/showcase/neuralyzed.mp4">

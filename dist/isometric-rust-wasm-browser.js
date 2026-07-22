@@ -933,6 +933,7 @@ var CALIBRATION_TURN_CAP = 600;
 var CALIBRATION_BUDGET_MS = 850;
 var STRONGEST_MIN_RELATIVE_SPEED = 0.7;
 var BALANCED_MIN_RELATIVE_SPEED = 0.35;
+var DEFAULT_PLANNER_STRENGTH = "strongest";
 var MOB_APPEAR_MS = 280;
 var MOB_DEATH_MS = 760;
 var ENDING_PRELUDE_MS = 1250;
@@ -1054,7 +1055,7 @@ function plannerCoreCount() {
   return Math.max(1, Math.min(PLANNER_CORE_LIMIT, Number(plannerCoresInput.value) || DEFAULT_PLANNER_CORES));
 }
 function syncPlannerStrengthSetting(value = plannerStrengthSelect.value) {
-  const setting = value === "baseline" || value === "balanced" || value === "strongest" ? value : "adaptive";
+  const setting = value === "adaptive" || value === "baseline" || value === "balanced" || value === "strongest" ? value : DEFAULT_PLANNER_STRENGTH;
   plannerStrengthSelect.value = setting;
   const cached = adaptivePlannerCalibration();
   plannerStrengthValue.value = setting === "adaptive" ? cached ? `Adaptive → ${plannerLevelName(cached.level)}` : "Adaptive" : plannerLevelName(setting);

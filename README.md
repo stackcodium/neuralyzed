@@ -32,7 +32,7 @@ Choose an agent, then select **Auto** for a planned run or use the keyboard. Pre
 | Quick fire / aimed fire | F / Shift+F |
 | Stairs or interact | Enter |
 
-Adaptive planning benchmarks the device for less than one second and selects Quick, Tactical, or Strategic search. The level can be overridden in **Settings**.
+Strategic full search is the default planning mode. **Settings** also offers Quick, Tactical, and Adaptive modes; Adaptive benchmarks the device for less than one second and selects a suitable level.
 
 ## Run locally
 

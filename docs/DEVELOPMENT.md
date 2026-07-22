@@ -46,7 +46,7 @@ Browser UI ──> Web Worker ──> WASM bridge ──> Rust game + bot
 
 The Rust core is authoritative for rules, simulation, combat, inventory, RNG, and planning. The TypeScript client presents snapshots and owns browser-only behavior such as dialogs, keyboard input, effects, pacing, and rendering. Keep rule changes in Rust and presentation changes in TypeScript.
 
-The worker keeps heavy planning off the UI thread. Adaptive planning uses a capped CPU probe and falls back to Quick search if the probe reaches its sub-second budget.
+The worker keeps heavy planning off the UI thread. Strategic full search is the default; optional Adaptive planning uses a capped CPU probe and falls back to Quick search if the probe reaches its sub-second budget.
 
 ## Build outputs
 

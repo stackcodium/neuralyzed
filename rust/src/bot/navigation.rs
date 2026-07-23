@@ -189,11 +189,16 @@ fn run_episode_wide48_attributed(
 ) -> (Game, u8) {
     let mut best = run_episode_wide48_raw(seed, class, turn_cap);
     let mut selected = 0;
-    let raw_won = best.player.won;
 
-    // Fast raw wins have no material efficiency problem and remain on the
-    // single-simulation path. Long wins still get compared with direct routing.
-    if raw_won && best.turns <= 700 {
+    // Direct-stairs routing often reaches the boss with fewer incidental kills.
+    // Compare it even for fast wins, but retain the guarded completed-episode
+    // ranking so a shorter death can never replace a win.
+    let direct = run_episode_wide48_variant(seed, class, turn_cap, 9);
+    if direct_stairs_is_better(&best, &direct) {
+        best = direct;
+        selected = 9;
+    }
+    if best.player.won && best.turns <= 700 {
         return (best, selected);
     }
 
@@ -204,7 +209,7 @@ fn run_episode_wide48_attributed(
     // cases. The remaining variants stay available through WIDE48_VARIANT for
     // focused diagnostics, but do not consume production simulation time.
     let variants = production_wide48_variants(class);
-    for &variant in variants {
+    for &variant in variants.iter().filter(|&&variant| variant != 9) {
         let candidate = run_episode_wide48_variant(seed, class, turn_cap, variant);
         if completed_episode_rank(&candidate) > completed_episode_rank(&best) {
             best = candidate;
@@ -785,7 +790,7 @@ pub fn run_episode_ensemble_attributed(
         };
     if best.player.won {
         if best.turns <= 700 {
-            return (best, selected);
+            return prefer_direct_stairs(seed, class, turn_cap, best, selected);
         }
         let (wide48, variant) = run_episode_wide48_attributed(seed, class, turn_cap);
         return if completed_episode_rank(&wide48) > completed_episode_rank(&best) {
@@ -801,7 +806,7 @@ pub fn run_episode_ensemble_attributed(
         selected = "resource".to_owned();
     }
     if best.player.won && best.turns <= 700 {
-        return (best, selected);
+        return prefer_direct_stairs(seed, class, turn_cap, best, selected);
     }
 
     let raw_survival = run_episode_resource_survival(seed, class, turn_cap, 0);
@@ -810,7 +815,7 @@ pub fn run_episode_ensemble_attributed(
         selected = "survival-raw".to_owned();
     }
     if best.player.won && best.turns <= 700 {
-        return (best, selected);
+        return prefer_direct_stairs(seed, class, turn_cap, best, selected);
     }
     let focused_survival = run_episode_resource_survival(seed, class, turn_cap, 1);
     if completed_episode_rank(&focused_survival) > completed_episode_rank(&best) {
@@ -818,13 +823,65 @@ pub fn run_episode_ensemble_attributed(
         selected = "survival-focused".to_owned();
     }
     if best.player.won && best.turns <= 700 {
-        return (best, selected);
+        return prefer_direct_stairs(seed, class, turn_cap, best, selected);
     }
     let (wide48, variant) = run_episode_wide48_attributed(seed, class, turn_cap);
     if completed_episode_rank(&wide48) > completed_episode_rank(&best) {
         (wide48, format!("wide48-{variant}"))
     } else {
         (best, selected)
+    }
+}
+
+fn prefer_direct_stairs(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+    best: Game,
+    selected: String,
+) -> (Game, String) {
+    let direct = run_episode_wide48_variant(seed, class, turn_cap, 9);
+    if direct_stairs_is_better(&best, &direct) {
+        (direct, "wide48-9".to_owned())
+    } else {
+        (best, selected)
+    }
+}
+
+fn direct_stairs_is_better(best: &Game, direct: &Game) -> bool {
+    completed_episode_rank(direct) > completed_episode_rank(best)
+}
+
+#[cfg(test)]
+mod direct_stairs_tests {
+    use super::*;
+    use crate::data::ClassId;
+
+    #[test]
+    fn guarded_direct_stairs_keeps_only_a_better_win() {
+        let mut best = Game::start(1_705_700, ClassId::Morphed);
+        best.player.won = true;
+        best.player.deepest = 15;
+        best.turns = 694;
+        let mut direct = best.clone();
+        direct.turns = 413;
+
+        assert!(direct_stairs_is_better(&best, &direct));
+    }
+
+    #[test]
+    fn guarded_direct_stairs_cannot_replace_a_win_with_a_loss() {
+        let mut best = Game::start(1_705_701, ClassId::Tech);
+        best.player.won = true;
+        best.player.deepest = 15;
+        best.turns = 414;
+        let mut direct = best.clone();
+        direct.player.won = false;
+        direct.player.dead = false;
+        direct.player.deepest = 9;
+        direct.turns = 3_600;
+
+        assert!(!direct_stairs_is_better(&best, &direct));
     }
 }
 

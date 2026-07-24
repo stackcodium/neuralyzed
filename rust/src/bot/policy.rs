@@ -14,6 +14,158 @@ fn visible_hostiles(game: &Game) -> Vec<usize> {
         .collect()
 }
 
+fn known_stairs_route_steps(game: &Game) -> Option<usize> {
+    let stairs = game.down_stairs? as usize;
+    if !game.visible[stairs] {
+        return None;
+    }
+    let mut grid = NavigationGrid::default();
+    for (cell, tile) in game.map.iter().enumerate() {
+        match tile {
+            Tile::Wall => grid.walls.insert(cell),
+            Tile::Trap => grid.traps.insert(cell),
+            _ => {}
+        };
+    }
+    Pathfinder::default()
+        .shortest_fixed(
+            &grid,
+            game.player.cell as usize,
+            stairs,
+            false,
+            true,
+        )
+        .map(|route| route.len().saturating_sub(1))
+}
+
+fn teleport_risk(game: &Game) -> usize {
+    visible_hostiles(game)
+        .into_iter()
+        .map(|index| {
+            let mob = &game.mobs[index];
+            if mob.frozen > 0 {
+                return 1;
+            }
+            let distance = Game::distance(game.player.cell as usize, mob.cell as usize);
+            usize::from(mob.boss && distance <= 2) * 100
+                + usize::from(distance <= 1) * 30
+                + usize::from(distance <= 2) * 10
+                + 1
+        })
+        .sum()
+}
+
+fn smart_teleport_goal_too_close(game: &Game) -> bool {
+    let hp_percent = i32::from(game.player.hp) * 100 / i32::from(game.player.max_hp.max(1));
+    teleport_risk(game) <= 11
+        && hp_percent >= 75
+        && known_stairs_route_steps(game).is_some_and(|steps| steps <= 12)
+}
+
+impl Bot {
+    fn smart_teleport_allowed(&self, game: &Game, uid: u16, emergency: bool) -> bool {
+        if !self.smart_teleport {
+            return true;
+        }
+
+        let before_risk = teleport_risk(game);
+        let before_route = known_stairs_route_steps(game);
+        if smart_teleport_goal_too_close(game) {
+            return false;
+        }
+
+        let mut trial = game.clone();
+        Bot::default().apply(&mut trial, Action::Use(uid));
+        if trial.player.dead {
+            return false;
+        }
+        let after_risk = teleport_risk(&trial);
+        let danger_improved = after_risk.saturating_add(10) <= before_risk;
+        let route_improved = match (before_route, known_stairs_route_steps(&trial)) {
+            (Some(before), Some(after)) => after < before,
+            _ => false,
+        };
+        let fresh_loop_break = self.stationary_actions >= 6
+            && trial.player.cell != game.player.cell
+            && !self.exploration_recent.contains(&trial.player.cell)
+            && self.visit_counts[trial.player.cell as usize] == 0;
+
+        if emergency {
+            danger_improved || route_improved
+        } else {
+            danger_improved || route_improved || before_route.is_none() && fresh_loop_break
+        }
+    }
+
+    fn smart_frozen_blocker_detour(&self, game: &Game, target: usize) -> Option<Action> {
+        if !self.smart_frozen_detour {
+            return None;
+        }
+        let mob = &game.mobs[target];
+        if mob.hp <= 0
+            || mob.friendly
+            || mob.pacified
+            || mob.boss
+            || mob.frozen <= 0
+            || Game::distance(game.player.cell as usize, mob.cell as usize) != 1
+            || !game.down_stairs.is_some_and(|stairs| game.seen[stairs as usize])
+        {
+            return None;
+        }
+
+        let mut fired = game.clone();
+        Bot::default().apply(&mut fired, Action::Fire(mob.cell as usize));
+        let fired_route = blocker_route_steps(&fired)?;
+        let fired_risk = teleport_risk(&fired);
+        let mut best: Option<(usize, usize, char)> = None;
+        for key in ['h', 'l', 'k', 'j', 'y', 'u', 'b', 'n'] {
+            let mut trial = game.clone();
+            Bot::default().apply(&mut trial, Action::Command(key));
+            if trial.player.dead
+                || trial.player.cell == game.player.cell
+                || trial.map[trial.player.cell as usize] == Tile::Trap
+            {
+                continue;
+            }
+            let Some(route) = blocker_route_steps(&trial) else {
+                continue;
+            };
+            let risk = teleport_risk(&trial);
+            if route >= fired_route || risk > fired_risk {
+                continue;
+            }
+            let candidate = (route, risk, key);
+            if best.is_none_or(|current| candidate < current) {
+                best = Some(candidate);
+            }
+        }
+        best.map(|(_, _, key)| Action::Command(key))
+    }
+}
+
+fn blocker_route_steps(game: &Game) -> Option<usize> {
+    let stairs = game.down_stairs? as usize;
+    if !game.seen[stairs] {
+        return None;
+    }
+    let mut grid = NavigationGrid::default();
+    for (cell, tile) in game.map.iter().enumerate() {
+        match tile {
+            Tile::Wall => grid.walls.insert(cell),
+            Tile::Trap => grid.traps.insert(cell),
+            _ => {}
+        };
+    }
+    for mob in &game.mobs {
+        if mob.hp > 0 && !mob.friendly && !mob.pacified && mob.cell as usize != stairs {
+            grid.walls.insert(mob.cell as usize);
+        }
+    }
+    Pathfinder::default()
+        .shortest_fixed(&grid, game.player.cell as usize, stairs, false, true)
+        .map(|route| route.len().saturating_sub(1))
+}
+
 fn alternating_tail(positions: &[u16]) -> bool {
     if positions.len() < 6 {
         return false;

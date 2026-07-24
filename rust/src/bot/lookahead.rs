@@ -297,25 +297,39 @@ fn enumerate_lookahead_candidates(game: &Game, bot: &Bot) -> Vec<LookaheadCandid
 }
 
 fn teleport_candidate_warranted(game: &Game, bot: &Bot, visible: &[usize]) -> bool {
+    if bot.legacy_unrestricted_teleport {
+        return true;
+    }
+    if bot.smart_teleport && smart_teleport_goal_too_close(game) {
+        return false;
+    }
     let hp_percent = i32::from(game.player.hp) * 100 / i32::from(game.player.max_hp.max(1));
-    let adjacent = visible.iter().filter(|&&index| {
-        game.mobs[index].frozen <= 0
-            && Game::distance(game.player.cell as usize, game.mobs[index].cell as usize) <= 1
-    }).count();
-    let close = visible.iter().filter(|&&index| {
-        game.mobs[index].frozen <= 0
-            && Game::distance(game.player.cell as usize, game.mobs[index].cell as usize) <= 2
-    }).count();
+    let adjacent = visible
+        .iter()
+        .filter(|&&index| {
+            game.mobs[index].frozen <= 0
+                && Game::distance(game.player.cell as usize, game.mobs[index].cell as usize) <= 1
+        })
+        .count();
+    let close = visible
+        .iter()
+        .filter(|&&index| {
+            game.mobs[index].frozen <= 0
+                && Game::distance(game.player.cell as usize, game.mobs[index].cell as usize) <= 2
+        })
+        .count();
     let adjacent_boss = visible.iter().any(|&index| {
         let mob = &game.mobs[index];
-        mob.boss && mob.frozen <= 0
+        mob.boss
+            && mob.frozen <= 0
             && Game::distance(game.player.cell as usize, mob.cell as usize) <= 1
     });
     let floor_ten_reset = game.floor == 10
         && adjacent_boss
         && visible.iter().any(|&index| {
             let mob = &game.mobs[index];
-            !mob.boss && mob.frozen > 0
+            !mob.boss
+                && mob.frozen > 0
                 && Game::distance(game.player.cell as usize, mob.cell as usize) >= 3
         });
 
@@ -776,11 +790,7 @@ mod tests {
         game.mobs[0].frozen = 0;
         game.mobs[0].cell = game.player.cell + 1;
 
-        assert!(!teleport_candidate_warranted(
-            &game,
-            &Bot::default(),
-            &[0]
-        ));
+        assert!(!teleport_candidate_warranted(&game, &Bot::default(), &[0]));
     }
 
     #[test]
@@ -791,15 +801,77 @@ mod tests {
         game.mobs[0].frozen = 0;
         game.mobs[0].cell = game.player.cell + 1;
         game.player.hp = game.player.max_hp * 7 / 10;
-        assert!(teleport_candidate_warranted(
-            &game,
-            &Bot::default(),
-            &[0]
-        ));
+        assert!(teleport_candidate_warranted(&game, &Bot::default(), &[0]));
 
         game.player.hp = game.player.max_hp;
         let mut looped_bot = Bot::default();
         looped_bot.stationary_actions = 6;
         assert!(teleport_candidate_warranted(&game, &looped_bot, &[0]));
+    }
+
+    #[test]
+    fn smart_teleport_rejects_minimal_threat_with_stairs_within_twelve_steps() {
+        let mut game = Game::start(1_706_023, ClassId::Agent);
+        game.mobs.iter_mut().for_each(|mob| mob.hp = 0);
+        game.player.hp = game.player.max_hp;
+        game.player.cell = index(10, 10) as u16;
+        for x in 10..=23 {
+            game.map[index(x, 10)] = Tile::Floor;
+        }
+
+        let stairs = index(20, 10);
+        game.down_stairs = Some(stairs as u16);
+        game.map[stairs] = Tile::DownStairs;
+        game.visible[stairs] = true;
+        assert_eq!(known_stairs_route_steps(&game), Some(10));
+        assert!(smart_teleport_goal_too_close(&game));
+
+        let farther_stairs = index(23, 10);
+        game.down_stairs = Some(farther_stairs as u16);
+        game.map[stairs] = Tile::Floor;
+        game.map[farther_stairs] = Tile::DownStairs;
+        game.visible[stairs] = false;
+        game.visible[farther_stairs] = true;
+        assert_eq!(known_stairs_route_steps(&game), Some(13));
+        assert!(!smart_teleport_goal_too_close(&game));
+    }
+
+    #[test]
+    fn smart_frozen_detour_requires_known_stairs_and_walks_around_blocker() {
+        let mut game = Game::start(1_706_023, ClassId::Tech);
+        game.mobs.iter_mut().for_each(|mob| mob.hp = 0);
+        game.player.cell = index(10, 10) as u16;
+        for cell in [
+            index(10, 10),
+            index(10, 9),
+            index(11, 9),
+            index(11, 10),
+            index(12, 9),
+            index(12, 10),
+        ] {
+            game.map[cell] = Tile::Floor;
+        }
+        let stairs = index(12, 10);
+        game.down_stairs = Some(stairs as u16);
+        game.map[stairs] = Tile::DownStairs;
+        game.seen[stairs] = true;
+        game.visible[stairs] = true;
+
+        let blocker = &mut game.mobs[0];
+        blocker.hp = 100;
+        blocker.max_hp = 100;
+        blocker.cell = index(11, 10) as u16;
+        blocker.frozen = 10;
+        blocker.friendly = false;
+        blocker.pacified = false;
+        blocker.boss = false;
+        game.visible[blocker.cell as usize] = true;
+
+        let bot = Bot::default().with_smart_frozen_detour();
+        let detour = bot.smart_frozen_blocker_detour(&game, 0);
+        assert!(matches!(detour, Some(Action::Command(_))));
+
+        game.seen[stairs] = false;
+        assert!(bot.smart_frozen_blocker_detour(&game, 0).is_none());
     }
 }

@@ -179,16 +179,42 @@ pub fn run_episode_lookahead_raw(seed: u64, class: crate::data::ClassId, turn_ca
 }
 
 pub fn run_episode_wide48(seed: u64, class: crate::data::ClassId, turn_cap: u32) -> Game {
-    run_episode_wide48_attributed(seed, class, turn_cap).0
+    #[cfg(not(target_arch = "wasm32"))]
+    let (best, crowd, legacy_teleport) = std::thread::scope(|scope| {
+        let crowd = scope.spawn(|| run_episode_wide48_crowd_variant(seed, class, turn_cap, 9));
+        let legacy_teleport =
+            scope.spawn(|| run_episode_wide48_legacy_teleport_best(seed, class, turn_cap).0);
+        let (best, _) = run_episode_wide48_attributed(seed, class, turn_cap);
+        (
+            best,
+            crowd.join().expect("neuralyzer crowd candidate"),
+            legacy_teleport
+                .join()
+                .expect("legacy unrestricted teleport candidate"),
+        )
+    });
+    #[cfg(target_arch = "wasm32")]
+    let (best, crowd, legacy_teleport) = (
+        run_episode_wide48_attributed(seed, class, turn_cap).0,
+        run_episode_wide48_crowd_variant(seed, class, turn_cap, 9),
+        run_episode_wide48_legacy_teleport_best(seed, class, turn_cap).0,
+    );
+    let mut best = best;
+    for candidate in [crowd, legacy_teleport] {
+        if completed_episode_rank(&candidate) > completed_episode_rank(&best) {
+            best = candidate;
+        }
+    }
+    best
 }
 
 fn run_episode_wide48_attributed(
     seed: u64,
     class: crate::data::ClassId,
     turn_cap: u32,
-) -> (Game, u8) {
+) -> (Game, String) {
     let mut best = run_episode_wide48_raw(seed, class, turn_cap);
-    let mut selected = 0;
+    let mut selected = "wide48-0".to_owned();
 
     // Direct-stairs routing often reaches the boss with fewer incidental kills.
     // Compare it even for fast wins, but retain the guarded completed-episode
@@ -196,7 +222,7 @@ fn run_episode_wide48_attributed(
     let direct = run_episode_wide48_variant(seed, class, turn_cap, 9);
     if direct_stairs_is_better(&best, &direct) {
         best = direct;
-        selected = 9;
+        selected = "wide48-9".to_owned();
     }
     if best.player.won && best.turns <= 700 {
         return (best, selected);
@@ -213,7 +239,7 @@ fn run_episode_wide48_attributed(
         let candidate = run_episode_wide48_variant(seed, class, turn_cap, variant);
         if completed_episode_rank(&candidate) > completed_episode_rank(&best) {
             best = candidate;
-            selected = variant;
+            selected = format!("wide48-{variant}");
         }
     }
     (best, selected)
@@ -241,8 +267,128 @@ pub fn run_episode_wide48_variant(
     turn_cap: u32,
     variant: u8,
 ) -> Game {
+    run_episode_wide48_variant_with_bot(seed, class, turn_cap, variant, wide48_variant_bot(variant))
+}
+
+fn run_episode_wide48_crowd_variant(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+    variant: u8,
+) -> Game {
+    run_episode_wide48_variant_with_bot(
+        seed,
+        class,
+        turn_cap,
+        variant,
+        wide48_variant_bot(variant)
+            .with_neuralyzer_crowd()
+            .with_smart_teleport(),
+    )
+}
+
+fn run_episode_wide48_legacy_teleport_variant(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+    variant: u8,
+) -> Game {
+    run_episode_wide48_variant_with_bot(
+        seed,
+        class,
+        turn_cap,
+        variant,
+        wide48_variant_bot(variant).with_legacy_unrestricted_teleport(),
+    )
+}
+
+fn legacy_unrestricted_teleport_variants(class: crate::data::ClassId) -> &'static [u8] {
+    match class {
+        crate::data::ClassId::Agent => &[9],
+        crate::data::ClassId::Rookie => &[9, 86],
+        crate::data::ClassId::Veteran => &[9, 11, 12, 49],
+        crate::data::ClassId::Tech => &[9, 49, 66, 84, 107],
+        crate::data::ClassId::Morphed => &[9, 49, 50],
+    }
+}
+
+fn run_episode_wide48_legacy_teleport_best(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+) -> (Game, String) {
+    let variants = legacy_unrestricted_teleport_variants(class);
+    let first = variants[0];
+    let mut best = run_episode_wide48_legacy_teleport_variant(seed, class, turn_cap, first);
+    let mut selected = format!("wide48-{first}-legacy-unrestricted-teleport");
+    for &variant in &variants[1..] {
+        let candidate = run_episode_wide48_legacy_teleport_variant(seed, class, turn_cap, variant);
+        if completed_episode_rank(&candidate) > completed_episode_rank(&best) {
+            best = candidate;
+            selected = format!("wide48-{variant}-legacy-unrestricted-teleport");
+        }
+    }
+    (best, selected)
+}
+
+fn run_episode_wide48_smart_tools_variant(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+    variant: u8,
+) -> Game {
+    run_episode_wide48_variant_with_bot(
+        seed,
+        class,
+        turn_cap,
+        variant,
+        wide48_variant_bot(variant)
+            .with_neuralyzer_crowd()
+            .with_smart_teleport()
+            .with_smart_frozen_detour(),
+    )
+}
+
+fn run_episode_wide48_smart_teleport_variant(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+    variant: u8,
+) -> Game {
+    run_episode_wide48_variant_with_bot(
+        seed,
+        class,
+        turn_cap,
+        variant,
+        wide48_variant_bot(variant).with_smart_teleport(),
+    )
+}
+
+fn run_episode_wide48_frozen_detour_variant(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+    variant: u8,
+) -> Game {
+    run_episode_wide48_variant_with_bot(
+        seed,
+        class,
+        turn_cap,
+        variant,
+        wide48_variant_bot(variant)
+            .with_smart_teleport()
+            .with_smart_frozen_detour(),
+    )
+}
+
+fn run_episode_wide48_variant_with_bot(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+    variant: u8,
+    mut bot: Bot,
+) -> Game {
     let mut game = Game::start(seed, class);
-    let mut bot = wide48_variant_bot(variant);
     for _ in 0..turn_cap {
         if game.player.dead {
             break;
@@ -488,6 +634,23 @@ fn ensemble_candidates(class: crate::data::ClassId, live_bot: &Bot) -> Vec<Ensem
             0,
         ),
         ("wide48-0".to_owned(), live_bot.clone(), 2, 0),
+        (
+            "wide48-9-smart-tools".to_owned(),
+            Bot::reckless_rush()
+                .with_neuralyzer_crowd()
+                .with_smart_teleport(),
+            2,
+            9,
+        ),
+        (
+            "wide48-9-smart-tools-frozen-detour".to_owned(),
+            Bot::reckless_rush()
+                .with_neuralyzer_crowd()
+                .with_smart_teleport()
+                .with_smart_frozen_detour(),
+            2,
+            9,
+        ),
     ];
     candidates.extend(production_wide48_variants(class).iter().map(|&variant| {
         (
@@ -497,6 +660,34 @@ fn ensemble_candidates(class: crate::data::ClassId, live_bot: &Bot) -> Vec<Ensem
             variant,
         )
     }));
+    candidates.extend(
+        legacy_unrestricted_teleport_variants(class)
+            .iter()
+            .map(|&variant| {
+                (
+                    format!("wide48-{variant}-legacy-unrestricted-teleport"),
+                    wide48_variant_bot(variant).with_legacy_unrestricted_teleport(),
+                    2,
+                    variant,
+                )
+            }),
+    );
+    for variant in [9_u8, 37] {
+        candidates.push((
+            format!("wide48-{variant}-smart-tools"),
+            wide48_variant_bot(variant).with_smart_teleport(),
+            2,
+            variant,
+        ));
+        candidates.push((
+            format!("wide48-{variant}-smart-tools-frozen-detour"),
+            wide48_variant_bot(variant)
+                .with_smart_teleport()
+                .with_smart_frozen_detour(),
+            2,
+            variant,
+        ));
+    }
     candidates
 }
 
@@ -691,7 +882,7 @@ pub fn run_episode_ensemble_frames(
     class: crate::data::ClassId,
     turn_cap: u32,
 ) -> Vec<(Game, Action)> {
-    let expected = run_episode_ensemble(seed, class, turn_cap);
+    let (expected, selected) = run_episode_ensemble_attributed(seed, class, turn_cap);
     let matches = |game: &Game| {
         game.player.won == expected.player.won
             && game.player.deepest == expected.player.deepest
@@ -708,6 +899,59 @@ pub fn run_episode_ensemble_frames(
         (Bot::resource_survival(2), 1, 0),
         (Bot::default(), 2, 0),
     ];
+    if let Some(variant) = selected
+        .strip_prefix("wide48-")
+        .and_then(|value| value.strip_suffix("-legacy-unrestricted-teleport"))
+        .and_then(|value| value.parse::<u8>().ok())
+    {
+        let (game, frames) = recorded_episode(
+            seed,
+            class,
+            turn_cap,
+            wide48_variant_bot(variant).with_legacy_unrestricted_teleport(),
+            2,
+            variant,
+        );
+        if matches(&game) {
+            return frames;
+        }
+    }
+    if let Some(variant) = selected
+        .strip_prefix("wide48-")
+        .and_then(|value| value.strip_suffix("-smart-tools"))
+        .and_then(|value| value.parse::<u8>().ok())
+    {
+        let (game, frames) = recorded_episode(
+            seed,
+            class,
+            turn_cap,
+            wide48_variant_bot(variant).with_smart_teleport(),
+            2,
+            variant,
+        );
+        if matches(&game) {
+            return frames;
+        }
+    }
+    if let Some(variant) = selected
+        .strip_prefix("wide48-")
+        .and_then(|value| value.strip_suffix("-smart-tools-frozen-detour"))
+        .and_then(|value| value.parse::<u8>().ok())
+    {
+        let (game, frames) = recorded_episode(
+            seed,
+            class,
+            turn_cap,
+            wide48_variant_bot(variant)
+                .with_smart_teleport()
+                .with_smart_frozen_detour(),
+            2,
+            variant,
+        );
+        if matches(&game) {
+            return frames;
+        }
+    }
     for (bot, chooser, variant) in candidates {
         let (game, frames) = recorded_episode(seed, class, turn_cap, bot, chooser, variant);
         if matches(&game) {
@@ -726,6 +970,33 @@ pub fn run_episode_ensemble_frames(
         if matches(&game) {
             return frames;
         }
+    }
+    let (game, frames) = recorded_episode(
+        seed,
+        class,
+        turn_cap,
+        Bot::reckless_rush()
+            .with_neuralyzer_crowd()
+            .with_smart_teleport(),
+        2,
+        9,
+    );
+    if matches(&game) {
+        return frames;
+    }
+    let (game, frames) = recorded_episode(
+        seed,
+        class,
+        turn_cap,
+        Bot::reckless_rush()
+            .with_neuralyzer_crowd()
+            .with_smart_teleport()
+            .with_smart_frozen_detour(),
+        2,
+        9,
+    );
+    if matches(&game) {
+        return frames;
     }
     Vec::new()
 }
@@ -780,6 +1051,67 @@ pub fn run_episode_ensemble_attributed(
     class: crate::data::ClassId,
     turn_cap: u32,
 ) -> (Game, String) {
+    #[cfg(not(target_arch = "wasm32"))]
+    let ((best, selected), crowd, frozen, legacy_teleport) = std::thread::scope(|scope| {
+        let crowd = scope.spawn(|| run_episode_wide48_crowd_variant(seed, class, turn_cap, 9));
+        let frozen =
+            scope.spawn(|| run_episode_wide48_smart_tools_variant(seed, class, turn_cap, 9));
+        let legacy_teleport =
+            scope.spawn(|| run_episode_wide48_legacy_teleport_best(seed, class, turn_cap));
+        let legacy = run_episode_ensemble_legacy_attributed(seed, class, turn_cap);
+        (
+            legacy,
+            crowd.join().expect("neuralyzer crowd candidate"),
+            frozen.join().expect("frozen detour candidate"),
+            legacy_teleport
+                .join()
+                .expect("legacy unrestricted teleport candidate"),
+        )
+    });
+    #[cfg(target_arch = "wasm32")]
+    let ((best, selected), crowd, frozen, legacy_teleport) = (
+        run_episode_ensemble_legacy_attributed(seed, class, turn_cap),
+        run_episode_wide48_crowd_variant(seed, class, turn_cap, 9),
+        run_episode_wide48_smart_tools_variant(seed, class, turn_cap, 9),
+        run_episode_wide48_legacy_teleport_best(seed, class, turn_cap),
+    );
+    let (mut best, mut selected) = if completed_episode_rank(&crowd) > completed_episode_rank(&best)
+    {
+        (crowd, "wide48-9-smart-tools".to_owned())
+    } else {
+        (best, selected)
+    };
+    if completed_episode_rank(&frozen) > completed_episode_rank(&best) {
+        best = frozen;
+        selected = "wide48-9-smart-tools-frozen-detour".to_owned();
+    }
+    if let Some(variant) = selected
+        .strip_prefix("wide48-")
+        .and_then(|value| value.parse::<u8>().ok())
+    {
+        let smart = run_episode_wide48_smart_teleport_variant(seed, class, turn_cap, variant);
+        if completed_episode_rank(&smart) >= completed_episode_rank(&best) {
+            best = smart;
+            selected = format!("wide48-{variant}-smart-tools");
+        }
+        let frozen = run_episode_wide48_frozen_detour_variant(seed, class, turn_cap, variant);
+        if completed_episode_rank(&frozen) > completed_episode_rank(&best) {
+            best = frozen;
+            selected = format!("wide48-{variant}-smart-tools-frozen-detour");
+        }
+    }
+    if completed_episode_rank(&legacy_teleport.0) > completed_episode_rank(&best) {
+        best = legacy_teleport.0;
+        selected = legacy_teleport.1;
+    }
+    (best, selected)
+}
+
+fn run_episode_ensemble_legacy_attributed(
+    seed: u64,
+    class: crate::data::ClassId,
+    turn_cap: u32,
+) -> (Game, String) {
     let lookahead = run_episode_lookahead_raw(seed, class, turn_cap);
     let baseline = run_episode(seed, class, turn_cap);
     let (mut best, mut selected) =
@@ -792,9 +1124,9 @@ pub fn run_episode_ensemble_attributed(
         if best.turns <= 700 {
             return prefer_direct_stairs(seed, class, turn_cap, best, selected);
         }
-        let (wide48, variant) = run_episode_wide48_attributed(seed, class, turn_cap);
+        let (wide48, wide48_policy) = run_episode_wide48_attributed(seed, class, turn_cap);
         return if completed_episode_rank(&wide48) > completed_episode_rank(&best) {
-            (wide48, format!("wide48-{variant}"))
+            (wide48, wide48_policy)
         } else {
             (best, selected)
         };
@@ -825,9 +1157,9 @@ pub fn run_episode_ensemble_attributed(
     if best.player.won && best.turns <= 700 {
         return prefer_direct_stairs(seed, class, turn_cap, best, selected);
     }
-    let (wide48, variant) = run_episode_wide48_attributed(seed, class, turn_cap);
+    let (wide48, wide48_policy) = run_episode_wide48_attributed(seed, class, turn_cap);
     if completed_episode_rank(&wide48) > completed_episode_rank(&best) {
-        (wide48, format!("wide48-{variant}"))
+        (wide48, wide48_policy)
     } else {
         (best, selected)
     }
@@ -840,12 +1172,14 @@ fn prefer_direct_stairs(
     best: Game,
     selected: String,
 ) -> (Game, String) {
+    let mut best = best;
+    let mut selected = selected;
     let direct = run_episode_wide48_variant(seed, class, turn_cap, 9);
     if direct_stairs_is_better(&best, &direct) {
-        (direct, "wide48-9".to_owned())
-    } else {
-        (best, selected)
+        best = direct;
+        selected = "wide48-9".to_owned();
     }
+    (best, selected)
 }
 
 fn direct_stairs_is_better(best: &Game, direct: &Game) -> bool {

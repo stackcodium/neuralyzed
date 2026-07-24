@@ -240,6 +240,10 @@ impl Bot {
             return Action::Eat(food.uid);
         }
 
+        if let Some(detour) = self.smart_frozen_blocker_detour(game, target) {
+            return detour;
+        }
+
         if !game.mobs[target].boss
             && let Some(range) = ranged_ready(game)
             && distance <= range
@@ -428,6 +432,7 @@ impl Bot {
                 .inventory
                 .iter()
                 .find(|item| item.gear == GearId::PocketUniverse)
+            && self.smart_teleport_allowed(game, teleporter.uid, true)
         {
             return Action::Use(teleporter.uid);
         }

@@ -98,6 +98,10 @@ pub struct Bot {
     reckless_rush: bool,
     reckless_from_floor: u8,
     reckless_until_floor: u8,
+    legacy_unrestricted_teleport: bool,
+    neuralyzer_crowd: bool,
+    smart_teleport: bool,
+    smart_frozen_detour: bool,
 }
 
 impl Default for Bot {
@@ -145,11 +149,35 @@ impl Default for Bot {
             reckless_rush: false,
             reckless_from_floor: 0,
             reckless_until_floor: 0,
+            legacy_unrestricted_teleport: false,
+            neuralyzer_crowd: false,
+            smart_teleport: false,
+            smart_frozen_detour: false,
         }
     }
 }
 
 impl Bot {
+    pub fn with_legacy_unrestricted_teleport(mut self) -> Self {
+        self.legacy_unrestricted_teleport = true;
+        self
+    }
+
+    pub fn with_neuralyzer_crowd(mut self) -> Self {
+        self.neuralyzer_crowd = true;
+        self
+    }
+
+    pub fn with_smart_teleport(mut self) -> Self {
+        self.smart_teleport = true;
+        self
+    }
+
+    pub fn with_smart_frozen_detour(mut self) -> Self {
+        self.smart_frozen_detour = true;
+        self
+    }
+
     pub fn resource_focused() -> Self {
         Self {
             resource_focus: 1,

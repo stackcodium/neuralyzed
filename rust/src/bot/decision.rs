@@ -62,7 +62,7 @@ impl Bot {
                 .iter()
                 .any(|item| item.gear == GearId::PocketUniverse);
             if previous_stationary_actions >= 6 && can_teleport {
-                self.pending_loop_teleports = 2;
+                self.pending_loop_teleports = if self.smart_teleport { 1 } else { 2 };
                 self.force_depth_steps = 0;
             } else {
                 self.force_depth_steps = if previous_stationary_actions >= 6 {
@@ -95,8 +95,15 @@ impl Bot {
                 .iter()
                 .find(|item| item.gear == GearId::PocketUniverse)
         {
-            self.pending_loop_teleports -= 1;
-            return Action::Use(teleporter.uid);
+            let uid = teleporter.uid;
+            if self.smart_teleport {
+                self.pending_loop_teleports = 0;
+            } else {
+                self.pending_loop_teleports -= 1;
+            }
+            if self.smart_teleport_allowed(game, uid, false) {
+                return Action::Use(uid);
+            }
         }
         self.recent_positions.push(game.player.cell);
         if self.recent_positions.len() > 8 {
@@ -268,6 +275,7 @@ impl Bot {
                 .inventory
                 .iter()
                 .find(|item| item.gear == GearId::PocketUniverse)
+            && self.smart_teleport_allowed(game, teleporter.uid, true)
         {
             self.choice_rng_extra += 1;
             return Action::Use(teleporter.uid);
@@ -304,6 +312,7 @@ impl Bot {
                 .inventory
                 .iter()
                 .find(|item| item.gear == GearId::PocketUniverse)
+            && self.smart_teleport_allowed(game, teleporter.uid, true)
         {
             self.choice_rng_extra += 1;
             return Action::Use(teleporter.uid);
@@ -437,10 +446,19 @@ impl Bot {
                 .inventory
                 .iter()
                 .find(|item| item.gear == GearId::PocketUniverse)
+            && self.smart_teleport_allowed(game, teleporter.uid, true)
         {
             return Action::Use(teleporter.uid);
         }
-        if !finishable_threat
+        let neuralyzer_crowd = self.neuralyzer_crowd
+            && visible
+                .iter()
+                .filter(|&&index| !game.mobs[index].boss)
+                .take(2)
+                .count()
+                >= 2;
+        if (neuralyzer_crowd
+            || !finishable_threat
             && game.player.hp * 100 <= game.player.max_hp * 72
             && visible.iter().any(|&index| {
                 let mob = &game.mobs[index];
@@ -448,7 +466,7 @@ impl Bot {
                     && (MOBS[mob.kind as usize].tier >= 2
                         || visible.len() >= 2
                         || game.player.hp * 100 <= game.player.max_hp * 78)
-            })
+            }))
             && let Some(neuralyzer) = game
                 .player
                 .inventory
@@ -490,6 +508,7 @@ impl Bot {
                 .inventory
                 .iter()
                 .find(|item| item.gear == GearId::PocketUniverse)
+            && self.smart_teleport_allowed(game, teleporter.uid, false)
         {
             self.detours = 0;
             self.active_item = None;
@@ -619,6 +638,7 @@ impl Bot {
                     .inventory
                     .iter()
                     .find(|item| item.gear == GearId::PocketUniverse)
+                    && self.smart_teleport_allowed(game, teleporter.uid, true)
                 {
                     return Action::Use(teleporter.uid);
                 }
@@ -819,6 +839,7 @@ impl Bot {
                 .inventory
                 .iter()
                 .find(|item| item.gear == GearId::PocketUniverse)
+            && self.smart_teleport_allowed(game, teleporter.uid, false)
         {
             if game.floor < 5 {
                 self.poison_recent_cells(game.turns);
